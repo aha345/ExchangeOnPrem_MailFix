@@ -260,7 +260,7 @@ try {
 }
 
 # Set the Exchange GUID for the remote mailbox
-$RecipientTypeDetails = Get-RemoteMailbox -Identity $Mail -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | where {$_.RecipientTypeDetails -ne "RemoteuserMailbox"}
+$RecipientTypeDetails = Get-RemoteMailbox -Identity $Mail -ErrorAction SilentlyContinue -WarningAction SilentlyContinue}
 
 if ($RecipientTypeDetails.RecipientTypeDetails -ne "Remote*Mailbox") {
     $success = $false
