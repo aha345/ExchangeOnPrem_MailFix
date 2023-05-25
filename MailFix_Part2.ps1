@@ -259,8 +259,15 @@ try {
     Write-Host "Error: $_" -ForegroundColor Red
 }
 
+if ($ExchangeGuid -eq $null) {
+    Write-Host ""
+    Write-Warning "ExchangeGuid is missing, wait up to 1 hour and rerun script from part 1"
+    Start-Sleep -Seconds 60
+    Exit
+}
+
 # Set the Exchange GUID for the remote mailbox
-$RecipientTypeDetails = Get-RemoteMailbox -Identity $Mail -ErrorAction SilentlyContinue -WarningAction SilentlyContinue}
+$RecipientTypeDetails = Get-RemoteMailbox -Identity $Mail -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
 if ($RecipientTypeDetails.RecipientTypeDetails -ne "Remote*Mailbox") {
     $success = $false
