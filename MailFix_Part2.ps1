@@ -81,7 +81,7 @@ if ($TargetAddress -notlike '*@*'){
 }
 
 # Prompt the user to select mailbox type
-$MailboxType = $(Write-Host "Is the mailbox a 'User', 'Shared', 'Room' or 'Equipment' mailbox?" -ForegroundColor Magenta -NoNewLine) + $(Write-Host "(Type 'User', 'Shared', 'Room' or 'Equipment'.)" -ForegroundColor Yellow -NoNewLine) + $(Write-Host ": " -ForegroundColor Magenta -NoNewLine; Read-Host)
+$MailboxType = $(Write-Host "What type is the mailbox?" -ForegroundColor Magenta -NoNewLine) + $(Write-Host "(Type 'User', 'Shared', 'Room' or 'Equipment'.)" -ForegroundColor Yellow -NoNewLine) + $(Write-Host ": " -ForegroundColor Magenta -NoNewLine; Read-Host)
 
 # Check if a recipient object (such as a mailbox) exists for the given UPN, Email, or Alias
 $Mailbox = $null
@@ -274,6 +274,7 @@ if ($RecipientTypeDetails.RecipientTypeDetails -ne "Remote*Mailbox") {
     while (-not $success) {
         try {
             Set-RemoteMailbox -Identity $SamAccountName -ExchangeGuid $ExchangeGuid -ErrorAction Stop
+            Write-Host "RemoteMailbox is set" -ForegroundColor Green
             $success = $true
         } catch {
             $(Write-Host "An error occurred while setting RemoteMailbox: " -ForegroundColor Red -NoNewLine) + $(Write-Host "Retrying in 5 seconds..." -ForegroundColor Yellow)
