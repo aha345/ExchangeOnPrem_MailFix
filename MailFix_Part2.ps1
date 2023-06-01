@@ -266,6 +266,8 @@ if ($ExchangeGuid -eq $null) {
     Exit
 }
 
+$TryCount = 1
+
 # Set the Exchange GUID for the remote mailbox
 $RecipientTypeDetails = Get-RemoteMailbox -Identity $Mail -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
@@ -277,8 +279,14 @@ if ($RecipientTypeDetails.RecipientTypeDetails -ne "Remote*Mailbox") {
             Write-Host "RemoteMailbox is set" -ForegroundColor Green
             $success = $true
         } catch {
-            $(Write-Host "An error occurred while setting RemoteMailbox: " -ForegroundColor Red -NoNewLine) + $(Write-Host "Retrying in 5 seconds..." -ForegroundColor Yellow)
-            Start-Sleep -Seconds 5
+            $(Write-Host "An error occurred while setting RemoteMailbox (Try nr $TryCount): " -ForegroundColor Red -NoNewLine) + $(Write-Host "Retrying in 5 seconds..." -ForegroundColor Yellow)
+            $TryCount++
+            if ($TryCount -gt 5) {
+                Write-Warning "RemoteMailbox not set, wait 30 minutes and try script from part 1"
+                Exit
+            } else {
+                Start-Sleep -Seconds 5
+            }
         }
     }
 } else {
