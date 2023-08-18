@@ -12,6 +12,20 @@
 #                                                                   #
 #####################################################################
 
+# Check if AzureAD credentials are already stored
+if (-not $Credential) {
+    # Prompt the user for AzureAD credentials
+    $Credential = Get-Credential -Message "Enter your AzureAD credentials"
+}
+
+# Connect to AzureAD with the provided credentials
+Connect-AzureAD -Credential $Credential | Out-Null
+
+# Connect to Exchange Online with the provided credentials
+Import-Module ExchangeOnlineManagement
+$VerbosePreference = "SilentlyContinue"
+Connect-ExchangeOnline -Credential $Credential | Out-Null
+
 Get-Variable |
     Where-Object { $_.Name -ne "Credential" -and $_.Options -ne "ReadOnly" -and $_.Options -ne "AllScope" -and $_.Options -ne "Constant" } |
     Remove-Variable -ErrorAction SilentlyContinue
@@ -33,19 +47,6 @@ function Prompt-UserForPrimaryAddress {
 
     return $selectedAddress
 }
-
-# Check if AzureAD credentials are already stored
-if (-not $Credential) {
-    # Prompt the user for AzureAD credentials
-    $Credential = Get-Credential -Message "Enter your AzureAD credentials"
-}
-
-# Connect to AzureAD with the provided credentials
-Connect-AzureAD -Credential $Credential | Out-Null
-
-# Connect to Exchange Online with the provided credentials
-$EXOConnectionUri = "https://outlook.office365.com/powershell-liveid/"
-Connect-ExchangeOnline -Credential $Credential -ConnectionUri $EXOConnectionUri -ShowBanner:$false
 
 # Clear the console window
 Clear-Host
