@@ -50,7 +50,7 @@ try {
 catch {
     Write-Warning "You don't have access to the on-premises PowerShell environment."
     Start-Sleep -Seconds 10
-    exit
+    break
 }
 
 # Import the CSV file
@@ -238,7 +238,7 @@ if ($MailboxType -eq "User") {
     $ADmsExchRecipientTypeDetails = 32
 } else {
     $(Write-Host "Invalid mailbox type." -ForegroundColor Red -NoNewLine) + $(Write-host "Please type 'User', 'Shared', 'Room' or 'Equipment'." -ForegroundColor Yellow)
-    exit
+    break
 }
 
 # Set the mail, ProxyAddresses, msExchRecipientDisplayType, and msExchRecipientTypeDetails fields
@@ -263,7 +263,7 @@ if ($ExchangeGuid -eq $null) {
     Write-Host ""
     Write-Warning "ExchangeGuid is missing, wait up to 1 hour and rerun script from part 1"
     Start-Sleep -Seconds 60
-    Exit
+    break
 }
 
 $TryCount = 1
@@ -283,7 +283,7 @@ if ($RecipientTypeDetails.RecipientTypeDetails -ne "Remote*Mailbox") {
             $TryCount++
             if ($TryCount -gt 5) {
                 Write-Warning "RemoteMailbox not set, wait 30 minutes and try script from part 1"
-                Exit
+                break
             } else {
                 Start-Sleep -Seconds 5
             }
