@@ -18,18 +18,30 @@ if (-not $Credential) {
     $Credential = Get-Credential -Message "Enter your AzureAD credentials"
 }
 
+$ConditionalAccess = $false
+
 # Connect to AzureAD with the provided credentials
 try {
     Get-AzureADCurrentSessionInfo -ErrorAction Stop -WarningAction SilentlyContinue
 } catch {
-    Connect-AzureAD -Credential $Credential | Out-Null
+    try {
+        Connect-AzureAD -Credential $Credential -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
+    } catch {
+        Write-Warning "Couldn't connect with credentials or because of Conditional Access, log in again!"
+        Start-Sleep -Seconds 5
+        Connect-AzureAD | Out-Null
+        $ConditionalAccess = $true
+    }
 }
 
 # Connect to Exchange Online with the provided credentials
 Import-Module ExchangeOnlineManagement
 $VerbosePreference = "SilentlyContinue"
-Connect-ExchangeOnline -Credential $Credential | Out-Null
-
+if ($ConditionalAccess) {
+    Connect-ExchangeOnline | Out-Null
+} else {
+    Connect-ExchangeOnline -Credential $Credential | Out-Null
+}
 Get-Variable |
     Where-Object { $_.Name -ne "Credential" -and $_.Options -ne "ReadOnly" -and $_.Options -ne "AllScope" -and $_.Options -ne "Constant" } |
     Remove-Variable -ErrorAction SilentlyContinue
