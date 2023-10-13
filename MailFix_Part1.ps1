@@ -221,18 +221,6 @@ $ExportObject | Export-Csv -Path $OutputFileName -Encoding UTF8 -NoTypeInformati
 $currentuser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 $username = $currentuser.split('\')[-1]
 
-# Disconnect for Azure AD
-Disconnect-AzureAD
-
-# Disconnect Exchange Online
-function Disconnect-ExchangeOnlineSilent {
-    & {
-        Disconnect-ExchangeOnline -Confirm:$false
-    } 6>&1 > $null
-}
-
-Disconnect-ExchangeOnlineSilent
-
 # Check if the user is a member of the "Organization Management" group 
 $orgmanager = Get-ADGroupMember -Identity "Organization Management" -Recursive | where {$_.SamAccountName -eq $username} 
  

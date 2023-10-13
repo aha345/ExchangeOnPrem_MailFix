@@ -228,8 +228,8 @@ if ($MailboxType -eq "User") {
     $ADmsExchRecipientDisplayType = 1073741824
     $ADmsExchRecipientTypeDetails = 1
 } elseif ($MailboxType -eq "Shared") {
-    $ADmsExchRecipientDisplayType = 0
-    $ADmsExchRecipientTypeDetails = 4
+    $ADmsExchRecipientDisplayType = -2147483642
+    $ADmsExchRecipientTypeDetails = 34359738368
 }elseif ($MailboxType -eq "Room") {
     $ADmsExchRecipientDisplayType = 7
     $ADmsExchRecipientTypeDetails = 16
