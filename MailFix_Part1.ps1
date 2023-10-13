@@ -19,7 +19,11 @@ if (-not $Credential) {
 }
 
 # Connect to AzureAD with the provided credentials
-Connect-AzureAD -Credential $Credential | Out-Null
+try {
+    Get-AzureADCurrentSessionInfo -ErrorAction Stop -WarningAction SilentlyContinue
+} catch {
+    Connect-AzureAD -Credential $Credential | Out-Null
+}
 
 # Connect to Exchange Online with the provided credentials
 Import-Module ExchangeOnlineManagement
