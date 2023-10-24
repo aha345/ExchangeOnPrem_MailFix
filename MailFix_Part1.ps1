@@ -12,18 +12,17 @@
 #                                                                   #
 #####################################################################
 
-# Check if AzureAD credentials are already stored
-if (-not $Credential) {
-    # Prompt the user for AzureAD credentials
-    $Credential = Get-Credential -Message "Enter your AzureAD credentials"
-}
-
 $ConditionalAccess = $false
 
 # Connect to AzureAD with the provided credentials
 try {
     Get-AzureADCurrentSessionInfo -ErrorAction Stop -WarningAction SilentlyContinue
 } catch {
+    # Check if AzureAD credentials are already stored
+    if (-not $Credential) {
+        # Prompt the user for AzureAD credentials
+        $Credential = Get-Credential -Message "Enter your AzureAD credentials"
+    }
     try {
         Connect-AzureAD -Credential $Credential -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
     } catch {
@@ -35,13 +34,17 @@ try {
 }
 
 # Connect to Exchange Online with the provided credentials
-Import-Module ExchangeOnlineManagement
 $VerbosePreference = "SilentlyContinue"
-if ($ConditionalAccess) {
-    Connect-ExchangeOnline | Out-Null
-} else {
-    Connect-ExchangeOnline -Credential $Credential | Out-Null
+try {
+    Get-AcceptedDomain -ErrorAction Stop -WarningAction SilentlyContinue
+} catch {
+    if ($ConditionalAccess) {
+        Connect-ExchangeOnline | Out-Null
+    } else {
+        Connect-ExchangeOnline -Credential $Credential | Out-Null
+    }
 }
+
 Get-Variable |
     Where-Object { $_.Name -ne "Credential" -and $_.Options -ne "ReadOnly" -and $_.Options -ne "AllScope" -and $_.Options -ne "Constant" } |
     Remove-Variable -ErrorAction SilentlyContinue
