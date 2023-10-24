@@ -12,24 +12,20 @@
 #                                                                   #
 #####################################################################
 
+# Specify the directory where you want to search for CSV files
+$DefaultPath = "$($env:USERPROFILE)\Desktop"
 
-function Import-CsvFile {
-    param(
-        [string] $DefaultPath = "$($env:USERPROFILE)\Desktop",
-        [string] $DefaultFileName = "$(Get-Date -Format 'yyyyMMdd')-$($ADUser.Name).csv"
-    )
+# Get all CSV files in the specified directory and its subdirectories
+$DefaultFileName = Get-ChildItem -Path $DefaultPath -Filter *.csv -File -Recurse | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
-    do {
-        $filename = Read-Host -Prompt "Please enter the filename (default: $DefaultFileName):"
-        if (-not $filename) { $filename = $DefaultFileName }
+do {
+    $filename = Read-Host -Prompt "Please enter the filename (Default: $($DefaultFileName.Name)):"
+    if (-not $filename) { $filename = $DefaultFileName.Name }
         $filepath = Join-Path -Path $DefaultPath -ChildPath $filename
-        if (-not (Test-Path $filepath)) {
-            Write-Warning "File not found. Please try again."
-        }
+    if (-not (Test-Path $filepath)) {
+        Write-Warning "File not found. Please try again."
+    }
     } until (Test-Path $filepath)
-
-    return Import-Csv -Path $filepath
-}
 
 # Define the date format
 $dateFormat = "dd.MM.yyyy HH.mm.ss"
@@ -40,7 +36,7 @@ $currentDate = Get-Date
 # Clear the console window
 Clear-Host
 
-# Add some variables we'll use later
+# Add some variables we will use later
 $CurrentHostname = hostname
 
 # Check if the user running the script has access to the on-premises PowerShell environment
@@ -54,7 +50,7 @@ catch {
 }
 
 # Import the CSV file
-$importedData = Import-CsvFile
+$importedData = Import-Csv -Path $filepath
 
 # Access the data from the CSV file
 foreach ($item in $importedData) {
@@ -152,7 +148,7 @@ if ($MailboxStatistics) {
     $confirmation = $(Write-Host "Do you want to delete the on-prem mailbox for $($UserUPN)?" -ForegroundColor Magenta -NoNewLine) + $(Write-Host "(Type 'Yes' to confirm, or any other key to skip)" -ForegroundColor Yellow -NoNewLine) + $(Write-Host ": " -ForegroundColor Magenta -NoNewLine; Read-Host)
 
     if ($confirmation -eq "Yes") {
-        # Get the current user's distinguished name (DN) 
+        # Get the current users distinguished name (DN) 
         $currentuser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
         $username = $currentuser.split('\')[-1]
 
