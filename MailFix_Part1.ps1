@@ -41,6 +41,10 @@ try {
     if ($ConditionalAccess) {
         Connect-ExchangeOnline | Out-Null
     } else {
+        if (-not $Credential) {
+            # Prompt the user for AzureAD credentials
+            $Credential = Get-Credential -Message "Enter your AzureAD credentials"
+        }
         Connect-ExchangeOnline -Credential $Credential | Out-Null
     }
 }
