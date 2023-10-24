@@ -83,6 +83,38 @@ if ($TargetAddress -notlike '*@*'){
 # Prompt the user to select mailbox type
 $MailboxType = $(Write-Host "What type is the mailbox?" -ForegroundColor Magenta -NoNewLine) + $(Write-Host "(Type 'User', 'Shared', 'Room' or 'Equipment'.)" -ForegroundColor Yellow -NoNewLine) + $(Write-Host ": " -ForegroundColor Magenta -NoNewLine; Read-Host)
 
+# Initialize variables
+$ADmsExchRecipientDisplayType = 0
+$ADmsExchRecipientTypeDetails = 0
+$ADmsExchRemoteRecipientType = 0
+$MailboxSet = $Null
+
+# Set variables based on mailbox type
+if ($MailboxType -eq "User") {
+    $ADmsExchRecipientDisplayType = -2147483642
+    $ADmsExchRecipientTypeDetails = 2147483648
+    $ADmsExchRemoteRecipientType = 1
+    $MailboxSet = "Regular"
+} elseif ($MailboxType -eq "Shared") {
+    $ADmsExchRecipientDisplayType = -2147483642
+    $ADmsExchRecipientTypeDetails = 34359738368
+    $ADmsExchRemoteRecipientType = 1
+    $MailboxSet = "Shared"
+}elseif ($MailboxType -eq "Room") {
+    $ADmsExchRecipientDisplayType = -2147481850
+    $ADmsExchRecipientTypeDetails = 8589934592
+    $ADmsExchRemoteRecipientType = 33
+    $MailboxSet = "Room"
+}elseif ($MailboxType -eq "Equipment") {
+    $ADmsExchRecipientDisplayType = -2147481594
+    $ADmsExchRecipientTypeDetails = 17179869184
+    $ADmsExchRemoteRecipientType = 65
+    $MailboxSet = "Equipment"
+} else {
+    $(Write-Host "Invalid mailbox type." -ForegroundColor Red -NoNewLine) + $(Write-host "Please type 'User', 'Shared', 'Room' or 'Equipment'." -ForegroundColor Yellow)
+    break
+}
+
 # Check if a recipient object (such as a mailbox) exists for the given UPN, Email, or Alias
 $Mailbox = $null
 try {
@@ -219,34 +251,13 @@ if ($confirmationBlank -eq "Yes") {
 # Get the updated values of the AD user fields
 $UpdatedADUser = Get-ADUser -Identity $SAMAccountName -Properties mail, TargetAddress, ProxyAddresses, msExchRecipientDisplayType, msExchRecipientTypeDetails
 
-# Initialize variables
-$ADmsExchRecipientDisplayType = 0
-$ADmsExchRecipientTypeDetails = 0
-
-# Set variables based on mailbox type
-if ($MailboxType -eq "User") {
-    $ADmsExchRecipientDisplayType = 1073741824
-    $ADmsExchRecipientTypeDetails = 1
-} elseif ($MailboxType -eq "Shared") {
-    $ADmsExchRecipientDisplayType = -2147483642
-    $ADmsExchRecipientTypeDetails = 34359738368
-}elseif ($MailboxType -eq "Room") {
-    $ADmsExchRecipientDisplayType = 7
-    $ADmsExchRecipientTypeDetails = 16
-}elseif ($MailboxType -eq "Equipment") {
-    $ADmsExchRecipientDisplayType = 8
-    $ADmsExchRecipientTypeDetails = 32
-} else {
-    $(Write-Host "Invalid mailbox type." -ForegroundColor Red -NoNewLine) + $(Write-host "Please type 'User', 'Shared', 'Room' or 'Equipment'." -ForegroundColor Yellow)
-    break
-}
-
 # Set the mail, ProxyAddresses, msExchRecipientDisplayType, and msExchRecipientTypeDetails fields
 Set-ADUser -Identity $SAMAccountName -Replace @{
         mail = $Mail;
         ProxyAddresses = $AllSortedProxyAddresses;
         msExchRecipientDisplayType = $ADmsExchRecipientDisplayType;
-        msExchRecipientTypeDetails = $ADmsExchRecipientTypeDetails
+        msExchRecipientTypeDetails = $ADmsExchRecipientTypeDetails;
+        msExchRemoteRecipientType = $ADmsExchRemoteRecipientType
     }
 
 # Output a message to indicate the fields have been updated
@@ -275,7 +286,7 @@ if ($RecipientTypeDetails.RecipientTypeDetails -ne "Remote*Mailbox") {
     $success = $false
     while (-not $success) {
         try {
-            Set-RemoteMailbox -Identity $SamAccountName -ExchangeGuid $ExchangeGuid -ErrorAction Stop
+            Set-RemoteMailbox -Identity $SamAccountName -ExchangeGuid $ExchangeGuid -Type $MailboxSet -ErrorAction Stop
             Write-Host "RemoteMailbox is set" -ForegroundColor Green
             $success = $true
         } catch {
