@@ -36,7 +36,7 @@ try {
 # Connect to Exchange Online with the provided credentials
 $VerbosePreference = "SilentlyContinue"
 try {
-    Get-AcceptedDomain -ErrorAction Stop -WarningAction SilentlyContinue
+    Get-AcceptedDomain -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
 } catch {
     if ($ConditionalAccess) {
         Connect-ExchangeOnline | Out-Null
