@@ -18,6 +18,9 @@ $DefaultPath = "$($env:USERPROFILE)\Desktop"
 # Get all CSV files in the specified directory and its subdirectories
 $DefaultFileName = Get-ChildItem -Path $DefaultPath -Filter *.csv -File -Recurse | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
+# Clear the console window
+Clear-Host
+
 do {
     $filename = Read-Host -Prompt "Please enter the filename (Default: $($DefaultFileName.Name)):"
     if (-not $filename) { $filename = $DefaultFileName.Name }
@@ -32,9 +35,6 @@ $dateFormat = "dd.MM.yyyy HH.mm.ss"
 
 # Get the current date and time
 $currentDate = Get-Date
-
-# Clear the console window
-Clear-Host
 
 # Add some variables we will use later
 $CurrentHostname = hostname
