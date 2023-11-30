@@ -36,16 +36,16 @@ try {
 # Connect to Exchange Online with the provided credentials
 $VerbosePreference = "SilentlyContinue"
 try {
-    Get-AcceptedDomain -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
+    Get-ClientAcceptedDomain -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
 } catch {
     if ($ConditionalAccess) {
-        Connect-ExchangeOnline | Out-Null
+        Connect-ExchangeOnline -Prefix "Client" | Out-Null
     } else {
         if (-not $Credential) {
             # Prompt the user for AzureAD credentials
             $Credential = Get-Credential -Message "Enter your AzureAD credentials"
         }
-        Connect-ExchangeOnline -Credential $Credential | Out-Null
+        Connect-ExchangeOnline -Credential $Credential -Prefix "Client" | Out-Null
     }
 }
 
@@ -105,7 +105,7 @@ $ADProxyAddresses = $ADUser.ProxyAddresses
 $AzureADUser = Get-AzureADUser -ObjectId $UPN -ErrorAction SilentlyContinue
 
 # Find the user in Exchange Online based on the UPN and retrieve all properties
-$EXOUser = Get-Mailbox -Identity $UPN -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+$EXOUser = Get-ClientMailbox -Identity $UPN -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
 # Get the proxy addresses of the AzureAD user
 if ($AzureADUser) {
