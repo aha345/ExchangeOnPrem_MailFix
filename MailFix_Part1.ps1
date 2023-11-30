@@ -129,7 +129,7 @@ $(Write-Host "TargetAddress:" -ForegroundColor Cyan) + $(Write-Host "$TargetAddr
 
 # Print all ProxyAddresses with duplicates removed
 $AllProxyAddresses = @($ADProxyAddresses) + @($AzureADProxyAddresses) + @($EXOProxyAddresses)
-$AllProxyAddresses = $AllProxyAddresses | Sort-Object | Select-Object -Unique
+$AllProxyAddresses = @($AllProxyAddresses | Sort-Object | Select-Object -Unique)
 Write-Host "All ProxyAddresses:" -ForegroundColor Cyan
 foreach ($Address in $AllProxyAddresses) {
     Write-Host $Address -ForegroundColor DarkGray
